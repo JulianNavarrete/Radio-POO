@@ -1,69 +1,71 @@
-from Radio import *
-from Library import *
 import vlc
 
 
 class RadioManager:
 
-    count = 0
+    def showRadios(self, library):
+        print("\nRadios disponibles: ")
+        count = 0
+        for x in library.getRadios():
+            count += 1
+            print("\t" + str(count) + ". " + str(x.getName()) + "\n".strip("\n"))
+        print("\n".strip("\n"))
 
-    def addRadio(self):
-        radio.setName()
-        print(radio.getName())
-        radio.setURL()
-        print(radio.getURL())
-        # Library.radiosNames.append(tmpRadioName)
-        # Library.radiosURLs.append(tmpRadioURL)
+    def showDetailedRadios(self, library):
+        count = 0
+        print("\nRadios disponibles: ")
+        for x in library.getRadios():
+            count += 1
+            print("\t" + str(count) + ". " + str(x.getName()) + ", link: " + str(x.getURL()) + "\n".strip("\n"))
+        print("\n".strip("\n"))
 
-    def deleteRadio(self):
-        print("\n")
-        for x in Library.radiosNames:
-            self.count = 0
-            self.count += 1
-            print(self.count, ". ", x, "\n".strip("\n"))
-        index = int(input("Ingrese el índice de la radio que desea eliminar: "))
-        print("¿Está seguro que desea eliminar " + Library.radiosNames[index + 1])
-        deleteOption = int(input("Para confirmar su desición, ingrese " + '"' + "SI" + '"' + " en mayúsculas.\n"
-                                 "Para cancelar la operación, solo pulse " + '"' + "Enter" + '"' + ": "))
-        if deleteOption == "SI":
-            Library.radiosNames.pop(index - 1)
-            Library.radiosURLs.pop(index - 1)
-            print("\nSe ha eliminado exitosamente la radio.")
+    def selectRadio(self, library):
+        conditionExitWhile = False
+        lines = []
+        self.showRadios(library)
+        for x in library.getRadios():
+            lines.append(x)
+        numSelectRadio = int(input("Seleccione la emisora desea escuchar: ")) - 1
+        if 0 <= numSelectRadio < len(lines):
+            try:
+                volumeLevel = int(input("\nIngrese el nivel de volumen de reproducción\ndel 0 "
+                                        "al 150 (por defecto será 40): "))
+            except:
+                volumeLevel = 40
+
+            # Lógica de reproductor VLC
+            Instance = vlc.Instance()
+            player = Instance.media_player_new()
+            Media = Instance.media_new(lines[numSelectRadio].getURL())
+            print("\nReproduciendo:", lines[numSelectRadio].getName())
+            Media.get_mrl()
+            player.set_media(Media)
+            player.play()
+            player.audio_set_volume(volumeLevel)
+            # Hasta acá la lógica del reproductor
+            while not conditionExitWhile:
+                try:
+                    userStop = input("\nPara detener la reproducción y regresar al menú"
+                                     "\nprincipal ingrese la letra " + '"' + "s" + '"' + ". Si desea"
+                                     "cambiar el volumen\nde reproducción, ingrese el nuevo volumen "
+                                     "deseado: ".strip("\n"))
+
+                    if userStop == "s":
+                        player.stop()
+                        print("\nSe ha detenido la reproducción.\n")
+                        conditionExitWhile = True
+
+                    elif 0 <= int(userStop) <= 150:
+                        player.audio_set_volume(int(userStop))
+                        print("\nEl volumen de reproducción ha cambiado a:", int(userStop))
+
+                    else:
+                        print("\nNivel de volumen no válido.")
+
+                except:
+                    conditionExitWhile = False
+                    print("\nOpción no existente. Ingrese una opción válida.")
+
         else:
-            print("\nLa operación fue cancelada.")
+            print("\nRadio no válida. Intente nuevamente.\n")
 
-    def showRadios(self):
-        self.count = 0
-        print("\nRadios disponibles: ")
-        for x in Library.radiosNames:
-            self.count += 1
-            print("\t" + str(self.count) + ". " + x + "\n".strip("\n"))
-        print("\n".strip("\n"))
-
-    def showDetailedRadios(self):
-        self.count = 0
-        print("\nRadios disponibles: ")
-        for x in range(len(Library.radiosNames)):
-            self.count += 1
-            print(str(self.count) + ". " + Library.radiosNames[x] + "\n".strip("\n"))
-            print("\t" + Library.radiosURLs[x] + "\n".strip("\n"))
-        print("\n".strip("\n"))
-
-    def selectRadio(self):
-        RadioManager.showRadios(self)
-        while True:
-            indexReproduction = int(input("Ingrese el índice de la radio que desea escuchar: "))
-            if indexReproduction < 1:
-                print("Error, emisora no existente.\n")
-            else:
-                print("Reproduciendo emisora: ", Library.radiosNames[indexReproduction - 1])
-                input("Presione " + '"' + "Enter" + '"' + " para salir.\n")
-                break
-        # player.play()
-
-    def saveFile(self):
-        # print()
-        pass
-
-
-radioManager = RadioManager()

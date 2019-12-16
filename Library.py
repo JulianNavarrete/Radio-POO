@@ -1,18 +1,14 @@
-from Radio import *
-
 
 class Library:
 
-    radios = []
+    __radios = []
 
-    def setRadios(self):
+    def addRadio(self, radio): # Este metodo agrega una radio
+        self.__radios.append(radio)
 
-        pass
+    def getRadios(self): # Este metodo obtiene la lista de radios
+        return self.__radios
 
-    def getRadios(self):
-        # print()
-        pass
+    def deleteRadio(self, position): # Elimina una radio en una posicion específica
+        return self.__radios.pop(position)
 
-
-library = Library()
-# library.
